@@ -12,8 +12,11 @@ start = timeit.default_timer()
 driver.get("https://www.amazon.pl/")
 
 #close cookie
-cookie_button = driver.find_element(By.ID, 'sp-cc-accept')
-cookie_button.click()
+try:
+    cookie_button = driver.find_element(By.ID, 'sp-cc-accept')
+    cookie_button.click()
+except:
+    pass
 
 #find search input field and locate search button to enter query
 search_input = driver.find_element(By.ID, 'twotabsearchtextbox')
@@ -37,11 +40,11 @@ def locate_elements():
 
 number_of_pages = int(driver.find_element(By.XPATH, '//*[contains(@class, "s-pagination-item s-pagination-disabled")]').text)
 
-# while number_of_pages -1:
-locate_elements()
-    # next_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[text() = "Dalej"]')))
-    # next_button.click()
-    # number_of_pages -= 1
+while number_of_pages -1:
+    locate_elements()
+    next_button = WebDriverWait(driver, 10).until(EC.element_to_be_clickable((By.XPATH, '//*[text() = "Dalej"]')))
+    next_button.click()
+    number_of_pages -= 1
 
 stop = timeit.default_timer()
 print('Time: ', stop - start)
