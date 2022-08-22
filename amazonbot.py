@@ -7,9 +7,6 @@ import timeit
 import time
 import pandas as pd
 
-products_title = []
-products_price = []
-products_link = []
 templist = []
 
 def locate_elements():
@@ -57,7 +54,7 @@ search_button = driver.find_element(By.ID, 'nav-search-submit-button')
 search_button.click()
 
 number_of_pages = int(driver.find_element(By.XPATH, '//*[contains(@class, "s-pagination-item s-pagination-disabled")]').text)
-while number_of_pages >= 0:
+while number_of_pages-1 >= 0:
     locate_elements()
     next_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[text() = "Dalej"]')))
     next_button.click()
