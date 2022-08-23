@@ -1,3 +1,4 @@
+from multiprocessing.resource_sharer import stop
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
@@ -13,17 +14,20 @@ import pandas as pd
 class Amazoncrawler(object):
     def __init__(self) -> None:
         self.options = Options()
+        self.options.add_argument("--headless")
+        self.options.add_argument("--window-size=1920x1080")
         self.driver = webdriver.Chrome(service=Service('C:\TestFiles\chromedriver.exe'), options=self.options)
         self.driver.implicitly_wait(5)
-        products_title = []
-        products_price = []
-        products_link = []
-        templist = []
+        self.templist = []
+        self.start = None
+        self.stop = None
+        self.query = input('Amazon search: ')
 
     def driver_quit(self):
         self.driver.quit()
     
     def main_page(self):
+        self.start = timeit.default_timer()
         self.driver.get("https://www.amazon.pl/")
 
         #close cookie
@@ -35,8 +39,7 @@ class Amazoncrawler(object):
     
     def search(self):
         search_input = self.driver.find_element(By.ID, 'twotabsearchtextbox')
-        query = input('Amazon search: ')
-        search_input.send_keys(query)
+        search_input.send_keys(self.query)
         search_button = self.driver.find_element(By.ID, 'nav-search-submit-button')
         search_button.click()
     
@@ -65,7 +68,29 @@ class Amazoncrawler(object):
                 pass
 
     def pagination(self):
-        pass
+        number_of_pages = int(self.driver.find_element(By.XPATH, '//*[contains(@class, "s-pagination-item s-pagination-disabled")]').text)
+        while number_of_pages-1 >= 0:
+            self.locate_elements()
+            next_button = WebDriverWait(self.driver, 10).until(EC.presence_of_element_located((By.XPATH, '//*[text() = "Dalej"]')))
+            next_button.click()
+            number_of_pages -=1
 
     def csv_export(self):
-        pass
+        df = pd.DataFrame(self.templist)
+        df.to_csv('table.csv') 
+        self.driver.close()
+        self.stop = timeit.default_timer()
+    
+    def efficiency_time(self):
+        print('Time: ', self.stop - self.start)
+
+
+
+if __name__ == "__main__":
+    amazon = Amazoncrawler()
+    amazon.main_page()
+    amazon.search()
+    amazon.locate_elements()
+    amazon.pagination()
+    amazon.csv_export()
+    amazon.efficiency_time()
